@@ -36,6 +36,7 @@ def encrypt_text(plaintext, password):
     # i can do whatever i want with this now
     #print(binary)
 
+    print(binary[0])
     return binary
 
 # takes binary as the binary list with string elements that hold
@@ -122,7 +123,7 @@ def encrypt_image():
 
     x, y = 0, 0
     # is r, g, b, and a for alpha transparency
-    print(new_image.getpixel((x, y)))
+    #print(new_image.getpixel((x, y)))
 
     # looping through each byte
     for i in range(len(binary)):
@@ -197,11 +198,48 @@ def decrypt_image():
     #image = input("What is the name of the image you want to decrypt?")
     #password = input("What is your password?")
 
-    image = "newimg.png"
+    image_name = "newimg.png"
     password = "this is a very very strong password yay"
 
+    image = Image.open(image_name, 'r')
+
+    print(list(image.getdata()))
+
+    byte_list = []
+    x, y = 0, 0
+    rgb_counter = 0
+    image_width = image.size[0]
+    while True:
+        byte = ""
+        for i in range(8):
+            # get the current pixel's r/g/b and then find the lsb, append it to the byte string
+            byte += str( image.getpixel((x, y))[rgb_counter] % 2 )
+
+
+            rgb_counter += 1
+            # reset rgb counter if needed
+            # this is modular arithmetic
+            rgb_counter = rgb_counter % 3
+
+            # increment the pixel we're on
+            # move down a row if we're at the end of a column
+            # we can only do this if we're done with our current pixel though
+            if rgb_counter == 2:
+                if image_width - 1 == x:
+                    y += 1
+                    x = 0
+                else:
+                    x += 1
+        
+        byte_list.append(byte)
+
+        if image.getpixel((x, y))[rgb_counter] % 2 == 0:
+            break
     
-    
+    print(decrypt_text(byte_list, password))
+
         
 
 encrypt_image()
+
+decrypt_image()
