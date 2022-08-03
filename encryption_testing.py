@@ -38,9 +38,11 @@ binary = []
 for i in range(len(xored_list)):
     # take an int from the xored_list and make it into a string that has a format of 8 bits
     binary.append(f'{xored_list[i]:08b}')
+
+# i can do whatever i want with this now
 print(binary)
 
-
+"""********************"""
 
 # Decode:
 # take password and ord() it
@@ -52,36 +54,28 @@ password_list = list(password)
 for i in range(len(password_list)):
     password_list[i] = ord(password_list[i])
 
-unxored_list = []
 xored_list = []
-for i in range(len(plaintext_list)):
+for i in range(len(binary)):
+    # you can actually convert a string directly from binary to a
+    # decimal int with python's built in int() function
+    xored_list.append(int(binary[i], 2))
+
+print(xored_list)
+
+# unnxoring the message with your password
+unxored_list = []
+for i in range(len(xored_list)):
     if i == len(password_list):
         password_list += password_list
-    unxored_list.append(plaintext_list[i] ^ password_list[i])
+    unxored_list.append(xored_list[i] ^ password_list[i])
 
+print(unxored_list)
 
+plaintext_list = []
+# converting the unxored list into ascii aka human readable format
+for i in range(len(unxored_list)):
+    plaintext_list.append(chr(unxored_list[i]))
 
-#     
-#     testvar = "whee this is a test"
-#     testvar2 = testvar.encode('utf-8')
-#     print(testvar2)
-#     testvar3 = testvar2.hex()
-#     print(testvar3)
-#     testvar4 = bytes.fromhex(testvar3)
-#     print(testvar4)
-#     
-#     
-#     testvar = "whee this is a test"
-#     print(testvar)
-#     testlist = list(testvar)
-#     print(testlist)
-#     for i in range(len(testlist)):
-#         testlist[i] = ord(testlist[i])
-#     testvar2 = "".join(testlist)
-#     print(testvar2)
-#     testvar3 = testvar2.hex()
-#     print(testvar3)
-#     testvar4 = bytes.fromhex(testvar3)
-#     print(testvar4)
-#     
-#     
+# making this back into a string instead of a list
+plaintext = "".join(plaintext_list)
+print(plaintext)
