@@ -49,10 +49,12 @@ def encrypt_image():
 
     #plaintext = input("What message do you wish to embed?")
     #password = input("What password do you want to use?")
+    #new_image_name = input("What do you want the encrypted image to be called?")
 
     # for the sake of testing i am hard coding the password and plaintext for now
     plaintext = "jklasdfjklasdf this is text hi yeet idk josadjfkl sadf words are awesome"
     password = "this is a very very strong password yay"
+    new_image_name = "newimg.png"
 
     binary = encrypt_text(plaintext, password)
 
@@ -75,17 +77,52 @@ def encrypt_image():
         quit()
     
     # is r, g, b, and a for alpha transparency
-    print(list(new_image.getdata()))
+    #print(list(new_image.getdata()))
+
+    
 
     x, y = 0, 0
-    for i in range(needed_pixels):
-        # increment the pixel we're on
-        # move down a row if we're at the end of a column
-        if image_width - 1 == x:
-            y += 1
-            x = 0
-        else:
-            x += 1
+    # is r, g, b, and a for alpha transparency
+    print(new_image.getpixel((x, y)))
+
+    # we are going to modify the lsb of the r, g, and b values
+    # not going to modify transparency
+    rgb_counter = 0
+
+    # looping through each byte
+    for i in range(len(binary)):
+        # looping through each bit in the byte
+        for j in range(8):
+            # binary value of the r/g/b part of the pixel
+            bin_value = new_image.getpixel((x, y))[rgb_counter]
+
+            # checking lsb against binary bit
+            # if they differ then we have to modify that pixel value
+            if bin_value % 2 != binary[i][j]:
+                # if its greater than 0 and doesn't match the lsb then we can 
+                # substract 1 from its value
+                if bin_value == 255 or bin_value != 0:
+                    new_image.putpixel((x, y), bin_value - 1)
+                # if its 0 we can't subtract, so we add instead
+                elif bin_value == 0:
+                    new_image.putpixel((x, y), bin_value + 1)
+            
+            # reset rgb counter if needed
+            # this is modular arithmetic
+            rgb_counter = rgb_counter % 3
+
+            # increment the pixel we're on
+            # move down a row if we're at the end of a column
+            if image_width - 1 == x:
+                y += 1
+                x = 0
+            else:
+                x += 1
+
+    # save the image with the image name and extension
+    new_image.save(new_image_name, str(new_image_name.split(".")[1].upper()))
+
+        
 
     
         

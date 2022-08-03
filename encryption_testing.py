@@ -1,4 +1,6 @@
 
+
+
 # Encode:
 # take plaintext and ord() it
 # convert password using ord() into unicode
