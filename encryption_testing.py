@@ -1,4 +1,6 @@
-
+string = "ice cream is deleiciouis"
+string += str(1)
+print(string)
 
 # Encode:
 # take plaintext and ord() it
