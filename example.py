@@ -27,10 +27,11 @@ def modPix(pix, data):
     for i in range(lendata):
  
         # Extracting 3 pixels at a time
+        # get 9 pixels
         pix = [value for value in imdata.__next__()[:3] +
                                 imdata.__next__()[:3] +
                                 imdata.__next__()[:3]]
- 
+
         # Pixel value should be made
         # odd for 1 and even for 0
         for j in range(0, 8):
