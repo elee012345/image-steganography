@@ -75,27 +75,16 @@ def decrypt_text(binary, password):
 
 
 def encrypt_image():
-    #image = input("Enter the name of the image you wish to modify")
-
-    # already have an image in mind
-    image = "test image.png"
+    image = input("Enter the name of the image you wish to modify: ")
 
     # i don't want to make a new variable shush
     image = Image.open(image, 'r')
     
-
-    #plaintext = input("What message do you wish to embed?")
-    #password = input("What password do you want to use?")
-    #new_image_name = input("What do you want the encrypted image to be called?")
-
-    # for the sake of testing i am hard coding the password and plaintext for now
-    plaintext = "jklasdfjklasdf this is text hi yeet idk josadjfkl sadf words are awesome"
-    password = "this is a very very strong password yay"
-    new_image_name = "newimg.png"
+    plaintext = input("What message do you wish to embed? ")
+    password = input("What password do you want to use? ")
+    new_image_name = input("What do you want the encrypted image to be called? ")
 
     binary = encrypt_text(plaintext, password)
-
-    print(binary)
 
     # now we have to put our encrypted text into this new image
     new_image = image.copy()
@@ -103,10 +92,12 @@ def encrypt_image():
     image_width = new_image.size[0]
     image_height = new_image.size[1]
 
-    # length of the binary list (all the characters) times 8=9
-    # multiply by 8 becausue 8 bits per character + 1 because of the 
-    # lsb that tells us whether or not to keep reading
+    # determines whether we have enough room in our image to change it
+    # length of the binary list (all the characters) times 9
+    # multiply by 9 because 8 bits per character + 1 because of the 
+    # last lsb that tells us whether or not to keep reading
     # need one pixel for three bits (it has r, g, and b values)
+    # aka 3 pixels for a byte/character
     # so then we divide by 3
     # we will always divide evenly so we floor divide to get a nice clean int
     needed_pixels = len(binary) * 9 // 3
@@ -114,19 +105,12 @@ def encrypt_image():
         # this will probably not happen unless you have a tiny image 
         # or really big message
         print("your image is too small for your message")
-        # pretty sure one of these ends the program but i haven't tested it
+        # pretty sure one of these ends the program but i haven't tested it lmao
         exit()
         quit()
     
-    # is r, g, b, and a for alpha transparency
-    #print(list(new_image.getdata()))
-
-    
 
     x, y = 0, 0
-    # is r, g, b, and a for alpha transparency
-    #print(new_image.getpixel((x, y)))
-
     # looping through each byte
     for i in range(len(binary)):
 
@@ -134,20 +118,20 @@ def encrypt_image():
         bit_counter = 0
 
         # binary value of the r/g/b part of the pixel
+        # is r, g, b, and a for alpha transparency
         r = new_image.getpixel((x, y))[0]
         g = new_image.getpixel((x, y))[1]
         b = new_image.getpixel((x, y))[2]
         a = new_image.getpixel((x, y))[3] # we never change this
         values = [r, g, b, a]
-        #print("values are", values)
+
+        # looping through all of the 8 bits in the byte
         while bit_counter < 7:
+            # 3 r/g/b values per pixel
             for k in range(3):
-                #print("on pixel", x, ",", y, "and bit", bit_counter)
                 # checking lsb against binary bit
                 # if they differ then we have to modify that pixel value
                 # i is the byte, bit_counter is the bit, and k is the r/g/b
-                #print("bit to match is", binary[i][bit_counter])
-                #print("value is", values[k])
                 if values[k] % 2 != int( binary[i][bit_counter] ):
                     # if its greater than 0 and doesn't match the lsb then we can 
                     # substract 1 from its value
@@ -158,8 +142,12 @@ def encrypt_image():
                         values[k] += 1
                 # increment the bit that we're adding to the image
                 bit_counter += 1
+
+
                 # stop when we have written all 8 bits
                 if bit_counter == 8:
+
+                    # write if we need to stop reading or not
 
                     # this tells us whether or not to keep reading
                     # 1 is to keep reading, 0 is to stop
@@ -177,7 +165,7 @@ def encrypt_image():
                         else:
                             values[2] += 1
                     break
-            #print("final values are", values)
+
             new_image.putpixel((x, y), tuple(values))
             
             # increment the pixel we're on
@@ -196,19 +184,9 @@ def encrypt_image():
 
 
 def decrypt_image():
-
-    #image = input("What is the name of the image you want to decrypt?")
-    #password = input("What is your password?")
-
-    image_name = "newimg.png"
-    password = "this is a very very strong password yay"
-
+    image_name = input("What is the name of the image you want to decrypt? ")
+    password = input("What is your password? ")
     image = Image.open(image_name, 'r')
-
-    print( list(image.getdata()) )
-    #print( list(image.getdata())[0] )
-    #print( list(image.getdata())[1] )
-    #print( list(image.getdata())[2] )
 
     byte_list = []
     x, y = 0, 0
@@ -234,7 +212,7 @@ def decrypt_image():
         # end the while true loop because the message is over
         if image.getpixel((x, y))[2] % 2 == 0:
             break
-
+        # increment pixel
         if image_width - 1 == x:
             y += 1
             x = 0
@@ -243,8 +221,14 @@ def decrypt_image():
     
     print(decrypt_text(byte_list, password))
 
-        
+def main():
+    print("Do you want to \n 1) Encrypt or \n 2) Decrypt?")
+    choice = input().lower()
+    if choice == "1" or choice == "encrypt":
+        encrypt_image()
+    elif choice == "2" or choice == "decrypt":
+        decrypt_image()
+    else:
+        print("Input something valid")
 
-encrypt_image()
-
-decrypt_image()
+main()
