@@ -36,7 +36,6 @@ def encrypt_text(plaintext, password):
     # i can do whatever i want with this now
     #print(binary)
 
-    print(binary[0])
     return binary
 
 # takes binary as the binary list with string elements that hold
@@ -83,6 +82,7 @@ def encrypt_image():
 
     # i don't want to make a new variable shush
     image = Image.open(image, 'r')
+    
 
     #plaintext = input("What message do you wish to embed?")
     #password = input("What password do you want to use?")
@@ -94,6 +94,8 @@ def encrypt_image():
     new_image_name = "newimg.png"
 
     binary = encrypt_text(plaintext, password)
+
+    print(binary[0])
 
     # now we have to put our encrypted text into this new image
     new_image = image.copy()
@@ -128,64 +130,63 @@ def encrypt_image():
     # looping through each byte
     for i in range(len(binary)):
 
-        # we are going to modify the lsb of the r, g, and b values
-        # not going to modify transparency
-        rgb_counter = 0
+        # to go through all 8 bits needed
+        bit_counter = 0
 
-        # looping through each bit in the byte
-        for j in range(8):
-            # binary value of the r/g/b part of the pixel
-            bin_value = new_image.getpixel((x, y))[rgb_counter]
+        # binary value of the r/g/b part of the pixel
+        r = new_image.getpixel((x, y))[0]
+        g = new_image.getpixel((x, y))[1]
+        b = new_image.getpixel((x, y))[2]
+        a = new_image.getpixel((x, y))[3] # we never change this
+        values = [r, g, b, a]
+        #print("values are", values)
+        while bit_counter < 7:
+            for k in range(3):
+                # checking lsb against binary bit
+                # if they differ then we have to modify that pixel value
+                # i is the byte, bit_counter is the bit, and k is the r/g/b
+                #print("bit to match is", binary[i][bit_counter])
+                #print("value is", values[k])
+                if values[k] % 2 != int( binary[i][bit_counter] ):
+                    # if its greater than 0 and doesn't match the lsb then we can 
+                    # substract 1 from its value
+                    if values[k] > 0:
+                        values[k] -= 1
+                    # if its 0 obviously we can't subtract so we add instead
+                    else:
+                        values[k] += 1
+                # increment the bit that we're adding to the image
+                bit_counter += 1
+                # stop when we have written all 8 bits
+                if bit_counter == 7:
 
-            # checking lsb against binary bit
-            # if they differ then we have to modify that pixel value
-            if bin_value % 2 != binary[i][j]:
-                # if its greater than 0 and doesn't match the lsb then we can 
-                # substract 1 from its value
-                if bin_value == 255 or bin_value != 0:
-                    new_image.putpixel((x, y), bin_value - 1)
-                # if its 0 we can't subtract, so we add instead
-                elif bin_value == 0:
-                    new_image.putpixel((x, y), bin_value + 1)
-
-            rgb_counter += 1
-            # reset rgb counter if needed
-            # this is modular arithmetic
-            rgb_counter = rgb_counter % 3
-
+                    # this tells us whether or not to keep reading
+                    # 1 is to keep reading, 0 is to stop
+                    if i == len(binary) - 1:
+                        keep_reading = 0
+                    else:
+                        keep_reading = 1
+                    
+                    if values[2] % 2 != keep_reading:
+                        # if its greater than 0 and doesn't match the lsb then we can 
+                        # substract 1 from its value
+                        if values[2] > 0:
+                            values[2] -= 1
+                        # if its 0 we can't subtract, so we add instead
+                        else:
+                            values[2] += 1
+                    break
+            #print("final values are", values)
+            new_image.putpixel((x, y), tuple(values))
+            
             # increment the pixel we're on
             # move down a row if we're at the end of a column
-            # we can only do this if we're done with our current pixel though
-            if rgb_counter == 2:
-                if image_width - 1 == x:
-                    y += 1
-                    x = 0
-                else:
-                    x += 1
+            if image_width - 1 == x:
+                y += 1
+                x = 0
+            else:
+                x += 1
 
-        # after we have placed 8 bits, we now need to add in the 9th part in the 
-        # last part of the 3rd pixel
-      
-        bin_value = new_image.getpixel((x, y))[rgb_counter]
-
-        
-        # this tells us whether or not to keep reading
-        # 1 is to keep reading, 0 is to stop
-        if i == len(binary) - 1:
-            keep_reading = 0
-        else:
-            keep_reading = 1
-        
-        if bin_value % 2 != keep_reading:
-            # if its greater than 0 and doesn't match the lsb then we can 
-            # substract 1 from its value
-            if bin_value == 255 or bin_value != 0:
-                new_image.putpixel((x, y), bin_value - 1)
-            # if its 0 we can't subtract, so we add instead
-            elif bin_value == 0:
-                new_image.putpixel((x, y), bin_value + 1)
-        
-        
 
     # save the image with the image name and extension
     new_image.save(new_image_name, str(new_image_name.split(".")[1].upper()))
@@ -203,7 +204,10 @@ def decrypt_image():
 
     image = Image.open(image_name, 'r')
 
-    print(list(image.getdata()))
+    #print( list(image.getdata()) )
+    print( list(image.getdata())[0] )
+    print( list(image.getdata())[1] )
+    print( list(image.getdata())[2] )
 
     byte_list = []
     x, y = 0, 0
