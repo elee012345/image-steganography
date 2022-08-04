@@ -212,24 +212,17 @@ def decrypt_image():
 
     byte_list = []
     x, y = 0, 0
-    rgb_counter = 0
     image_width = image.size[0]
     while True:
         byte = ""
         for i in range(8):
             # get the current pixel's r/g/b and then find the lsb, append it to the byte string
-            byte += str( image.getpixel((x, y))[rgb_counter] % 2 )
-
-
-            rgb_counter += 1
-            # reset rgb counter if needed
-            # this is modular arithmetic
-            rgb_counter = rgb_counter % 3
+            byte += str( image.getpixel((x, y))[i % 3] % 2 )
 
             # increment the pixel we're on
             # move down a row if we're at the end of a column
             # we can only do this if we're done with our current pixel though
-            if rgb_counter == 2:
+            if i % 3 == 2:
                 if image_width - 1 == x:
                     y += 1
                     x = 0
@@ -238,8 +231,15 @@ def decrypt_image():
         
         byte_list.append(byte)
 
-        if image.getpixel((x, y))[rgb_counter] % 2 == 0:
+        # end the while true loop because the message is over
+        if image.getpixel((x, y))[2] % 2 == 0:
             break
+
+        if image_width - 1 == x:
+            y += 1
+            x = 0
+        else:
+            x += 1
     
     print(decrypt_text(byte_list, password))
 
