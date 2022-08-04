@@ -95,7 +95,7 @@ def encrypt_image():
 
     binary = encrypt_text(plaintext, password)
 
-    print(binary[0])
+    print(binary)
 
     # now we have to put our encrypted text into this new image
     new_image = image.copy()
@@ -142,6 +142,7 @@ def encrypt_image():
         #print("values are", values)
         while bit_counter < 7:
             for k in range(3):
+                #print("on pixel", x, ",", y, "and bit", bit_counter)
                 # checking lsb against binary bit
                 # if they differ then we have to modify that pixel value
                 # i is the byte, bit_counter is the bit, and k is the r/g/b
@@ -158,7 +159,7 @@ def encrypt_image():
                 # increment the bit that we're adding to the image
                 bit_counter += 1
                 # stop when we have written all 8 bits
-                if bit_counter == 7:
+                if bit_counter == 8:
 
                     # this tells us whether or not to keep reading
                     # 1 is to keep reading, 0 is to stop
@@ -204,10 +205,10 @@ def decrypt_image():
 
     image = Image.open(image_name, 'r')
 
-    #print( list(image.getdata()) )
-    print( list(image.getdata())[0] )
-    print( list(image.getdata())[1] )
-    print( list(image.getdata())[2] )
+    print( list(image.getdata()) )
+    #print( list(image.getdata())[0] )
+    #print( list(image.getdata())[1] )
+    #print( list(image.getdata())[2] )
 
     byte_list = []
     x, y = 0, 0
