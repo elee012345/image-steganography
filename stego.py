@@ -218,8 +218,15 @@ def decrypt_image():
             x = 0
         else:
             x += 1
-    
-    print(decrypt_text(byte_list, password))
+
+    plaintext_message = decrypt_text(byte_list, password)
+    print("The message is: ")
+    print(plaintext_message)
+
+
+    file = open("message.txt", "w")
+    file.write(plaintext_message)
+    file.close()
 
 def main():
     print("Do you want to \n 1) Encrypt or \n 2) Decrypt?")
